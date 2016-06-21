@@ -11,129 +11,128 @@
  <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css" />
  </head>
  <body>
-   <div id='content' class='container'>
-   </div>
-   <script type='text/babel'>
-   class List extends React.Component {
+  <div id='content' class='container'>
+  </div>
+  <script type='text/babel'>
+  class List extends React.Component {
    constructor(props) {
-     		// has to always be the first line
-     		super(props);
-     		// extra component setup (usually dealing with state of binding functions)
-     		this.state = { stickies: [], complete: 0, nextId: 0 };
-     		this.addSticky = this.addSticky.bind(this);
-     		this.stickies = this.stickies.bind(this);
-     		this.deleteSticky = this.deleteSticky.bind(this);
-     		this.completeCount = this.completeCount.bind(this);
-     		this.refreshCount = this.refreshCount.bind(this);
-     		this.editSticky = this.editSticky.bind(this);
-     	}
+     	// has to always be the first line
+     	super(props);
+     	// extra component setup (usually dealing with state of binding functions)
+     	this.state = { stickies: [], complete: 0, nextId: 0 };
+     	this.addSticky = this.addSticky.bind(this);
+     	this.stickies = this.stickies.bind(this);
+     	this.deleteSticky = this.deleteSticky.bind(this);
+     	this.completeCount = this.completeCount.bind(this);
+     	this.refreshCount = this.refreshCount.bind(this);
+     	this.editSticky = this.editSticky.bind(this);
+    }
 
-     	refreshCount(id, checked) {
-     		let stickies;
-     		let stickyArray = this.state.stickies;
-     		let index = stickyArray.findIndex( x => x.id === id);
-     		let sticky = stickyArray.splice(index, 1)[0];
-     		sticky.complete = checked;
-     		let complete = this.state.complete;
-     		if(checked) {
-     			stickies = [{...sticky}, ...stickyArray];
-     			complete++;	
-     		} else {
-     			stickies = [...stickyArray, {...sticky}];
-     			complete--;
-     		}
+    refreshCount(id, checked) {
+     	let stickies;
+     	let stickyArray = this.state.stickies;
+     	let index = stickyArray.findIndex( x => x.id === id);
+     	let sticky = stickyArray.splice(index, 1)[0];
+     	sticky.complete = checked;
+     	let complete = this.state.complete;
+     	if(checked) {
+     		stickies = [{...sticky}, ...stickyArray];
+     		complete++;	
+     	} else {
+     		stickies = [...stickyArray, {...sticky}];
+     		complete--;
+     	}
      		// RENDER
-     		this.setState({ stickies, complete });
-     	}
+     	this.setState({ stickies, complete });
+    }
 
-     	completeCount() {
-     		let complete = this.state.complete;
-     		return(<p>{`${complete}/${this.state.stickies.length} complete`}</p>);
-     	}
+    completeCount() {
+     	let complete = this.state.complete;
+     	return(<p>{`${complete}/${this.state.stickies.length} complete`}</p>);
+    }
 
-     	deleteSticky(id) {
-     		let stickies = this.state.stickies;
-     		let index = stickies.findIndex(x => x.id == id);
-     		let checked = stickies[index].complete;
-     		let complete = checked ? (this.state.complete - 1) : this.state.complete;
-     		// delete the item from the array
-     		stickies.splice(index, 1);
-     		// set state - RENDER GETS CALLED
-     		this.setState({ stickies, complete, nextId: ++this.state.nextId });
-     	}
+    deleteSticky(id) {
+     	let stickies = this.state.stickies;
+     	let index = stickies.findIndex(x => x.id == id);
+     	let checked = stickies[index].complete;
+     	let complete = checked ? (this.state.complete - 1) : this.state.complete;
+     	// delete the item from the array
+     	stickies.splice(index, 1);
+     	// set state - RENDER GETS CALLED
+     	this.setState({ stickies, complete, nextId: ++this.state.nextId });
+    }
 
 
-     	addSticky(e) {
-     		e.preventDefault();
-     		// grab the value from the input in the form using REFS
-     		// add that as an Item in the STATE
-     		// new item to show up in the list
+    addSticky(e) {
+     	e.preventDefault();
+     	// grab the value from the input in the form using REFS
+     	// add that as an Item in the STATE
+     	// new item to show up in the list
+     	// find an item that has the ref of name and then get the value. Will add the key value pair to the array
+     	let stickies = [{name: this.refs.name.value, description: this.refs.description.value, complete: false, id: this.state.nextId}, ...this.state.stickies ]
+     	this.refs.name.value = null;
+     	this.refs.description.value = null;
+     	// setState ALWAYS calls render()
+     	this.setState({ stickies, nextId: ++this.state.nextId });
+    }
 
-     		// find an item that has the ref of name and then get the value. Will add the key value pair to the array
-     		let stickies = [{name: this.refs.name.value, description: this.refs.description.value, complete: false, id: this.state.nextId}, ...this.state.stickies ]
-     		this.refs.name.value = null;
-     		this.refs.description.value = null;
-     		// setState ALWAYS calls render()
-     		this.setState({ stickies, nextId: ++this.state.nextId });
-     	}
+    editSticky(id) {
+     	// let id = `complete-${this.state.id}`;
+     	let stickies = this.state.stickies;
+     	let index = stickies.findIndex(x => x.id == id);
+     	let checked = stickies[index].complete;
+     	let complete = checked ? (this.state.complete - 1) : this.state.complete;
+     	return(
+     			<div>
+		       <div className='col m4 s12'>
+		         <div className='grey lighten-2'>
+		           <div className="card-content black-text">
+		             <input className="card-title" type='text' required placeholder={`${this.state.name}`}/>
+		             <input type='text' required placeholder={`${this.state.description}`}/>
+		             
+		           </div>
+		           <div className='center'>
+     						<input onChange={this.toggleChecked} type='checkbox' id={id} defaultChecked={this.state.checked} />
+     						<label htmlFor={id}>Complete?</label>
+     					</div>
+		           <div className="card-action">
+		             <input type='submit' className='btn' value='Update' />
+		           </div>
+		         </div>
+		       </div>
+		     </div>
+     		);
+    }
 
-     	editSticky(id) {
-     		// let id = `complete-${this.state.id}`;
-     		let stickies = this.state.stickies;
-     		let index = stickies.findIndex(x => x.id == id);
-     		let checked = stickies[index].complete;
-     		let complete = checked ? (this.state.complete - 1) : this.state.complete;
-     		return(
-     				<div>
-		        <div className='col m4 s12'>
-		          <div className='grey lighten-2'>
-		            <div className="card-content black-text">
-		              <input className="card-title" type='text' required placeholder={`${this.state.name}`}/>
-		              <input type='text' required placeholder={`${this.state.description}`}/>
-		              
-		            </div>
-		            <div className='center'>
-     							<input onChange={this.toggleChecked} type='checkbox' id={id} defaultChecked={this.state.checked} />
-     							<label htmlFor={id}>Complete?</label>
-     						</div>
-		            <div className="card-action">
-		              <input type='submit' className='btn' value='Update' />
-		            </div>
-		          </div>
-		        </div>
-		      </div>
-     			);
-     	}
-
-     	stickies() {
-     		// lopp items in STATE
-     		// render JSX for each item
-     		let stickies = this.state.stickies.map(sticky => {
-     			return(<Sticky key={`sticky=${sticky.id}`} name={sticky.name} description={sticky.description} complete={sticky.complete} id={sticky.id} deleteSticky={this.deleteSticky} refreshCount={this.refreshCount} editSticky={this.editSticky} />);
-     		});
-
-     		return stickies;
-     	}
+    stickies() {
+     	// lopp items in STATE
+     	// render JSX for each item
+     	let stickies = this.state.stickies.map(sticky => {
+     		return(<Sticky key={`sticky=${sticky.id}`} name={sticky.name} description={sticky.description} complete={sticky.complete} id={sticky.id} deleteSticky={this.deleteSticky} refreshCount={this.refreshCount} editSticky={this.editSticky} />);
+     	});
+     	return stickies;
+    }
      	// every component needs a render function!
-     	render() {
-     		return(
-     			<div className='center'>
-		     		<h1>{this.props.title}</h1>
-		     		<form onSubmit={this.addSticky}> 
-		     			<input type='text' required placeholder='Note Name' ref='name' />
-							<input type='text' required placeholder='Description' ref='description' />
-		     			<input type='submit' className='btn' value='Add Sticky Note' />
-		     		</form>
-		     		{this.completeCount()}
-		     		<h3>Sticky Notes</h3>
-		     		<div className='row'>
-		     			{this.stickies()}
-		     		</div>
-     			</div>
+    render() {
+     	return(
+     		<div className='center'>
+		    		<h1>{this.props.title}</h1>
+		    		<form onSubmit={this.addSticky}> 
+		    			<input type='text' required placeholder='Note Name' ref='name' />
+						<input type='text' required placeholder='Description' ref='description' />
+		    			<input type='submit' className='btn' value='Add Sticky Note' />
+		    		</form>
+		    		{this.completeCount()}
+		    		<h3>Sticky Notes</h3>
+		    		<div className='row'>
+		    			{this.stickies()}
+		    		</div>
+     		</div>
      		);
      	}
-     }
-     class Sticky extends React.Component {
+    }
+    
+    class Sticky extends React.Component {
      	constructor(props) {
      		// we NEVER change props - only to pass data into components
      		// setState - render gets called each time
@@ -179,27 +178,7 @@
 		          </div>
 		        </div>
 		      </div>
-      		
-     			// <div className={`${color} col s12`}>
-     		
-     			// 	<div className='col s8' style={ this.state.style }>
-     			// 		{this.props.name} - {this.props.description}
-     			// 	</div>
-
-     			// 	<div className='col s2'>
-     			// 		<input onChange={this.toggleChecked} type='checkbox' id={id} defaultChecked={this.state.checked} />
-     			// 		<label htmlFor={id}>Complete?</label>
-     			// 	</div>
-
-     			// 	<div className='col s1 btn' onClick={() => this.props.editSticky(this.props.id)}>
-     			// 		Edit
-     			// 	</div>
-     			// 	<div className='col s1 btn red' onClick={() => this.props.deleteSticky(this.props.id)}>
-     			// 		X
-     			// 	</div>
-
-     			// </div>
-     		);
+		    )
      	}
      }
     
